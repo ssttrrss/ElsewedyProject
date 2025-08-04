@@ -1,421 +1,316 @@
 "use client"
 
-import { useState } from "react"
-import {
-  Search,
-  Trophy,
-  Award,
-  Users,
-  GraduationCap,
-  Settings,
-  LogOut,
-  Bell,
-  Mail,
-  ChevronLeft,
-  ChevronRight,
-  MoreVertical,
-} from "lucide-react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
+import { AnimatedSection } from "@/components/animated-section"
+import { ScrollToTop } from "@/components/scroll-to-top"
+import { CompetitionForm } from "@/components/admin/competition-form"
+import { GrantForm } from "@/components/admin/grant-form"
+import { ModeSwitch } from "@/components/ui/mode-switch"
+import { useView } from "@/contexts/view-context"
+import { supabase } from "@/lib/supabase"
+import { Trophy, DollarSign, Search, Award, Target, Bell, Mail, Plus } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import type { Database } from "@/lib/supabase"
 
-export default function Dashboard() {
-  const [activeSection, setActiveSection] = useState("competitions")
+type Competition = Database["public"]["Tables"]["competitions"]["Row"]
+type Grant = Database["public"]["Tables"]["grants"]["Row"]
 
-  const competitions = [
-    {
-      id: 1,
-      title: "Beginner's Guide To Becoming A Professional Frontend Developer",
-      author: "Prashant Kumar Singh",
-      role: "Software Developer",
-      category: "Fanni Mobtaker",
-      type: "local",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 2,
-      title: "Beginner's Guide To Becoming A Professional Frontend Developer",
-      author: "Prashant Kumar Singh",
-      role: "Software Developer",
-      category: "Fanni Mobtaker",
-      type: "local",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 3,
-      title: "Beginner's Guide To Becoming A Professional Frontend Developer",
-      author: "Prashant Kumar Singh",
-      role: "Software Developer",
-      category: "Fanni Mobtaker",
-      type: "local",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 4,
-      title: "Beginner's Guide To Becoming A Professional Frontend Developer",
-      author: "Prashant Kumar Singh",
-      role: "Software Developer",
-      category: "Fanni Mobtaker",
-      type: "local",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-  ]
+export default function HomePage() {
+  const { viewMode, setViewMode, isAdmin } = useView()
+  const [competitions, setCompetitions] = useState<Competition[]>([])
+  const [grants, setGrants] = useState<Grant[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [showCompetitionForm, setShowCompetitionForm] = useState(false)
+  const [showGrantForm, setShowGrantForm] = useState(false)
 
-  const internationalCompetitions = [
-    {
-      id: 5,
-      title: "Beginner's Guide To Becoming A Professional Frontend Developer",
-      author: "Prashant Kumar Singh",
-      role: "Software Developer",
-      category: "Fanni Mobtaker",
-      type: "international",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 6,
-      title: "Beginner's Guide To Becoming A Professional Frontend Developer",
-      author: "Prashant Kumar Singh",
-      role: "Software Developer",
-      category: "Fanni Mobtaker",
-      type: "international",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 7,
-      title: "Beginner's Guide To Becoming A Professional Frontend Developer",
-      author: "Prashant Kumar Singh",
-      role: "Software Developer",
-      category: "Fanni Mobtaker",
-      type: "international",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-  ]
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const [competitionsResponse, grantsResponse] = await Promise.all([
+        supabase.from("competitions").select("*").order("created_at", { ascending: false }),
+        supabase.from("grants").select("*").order("created_at", { ascending: false }),
+      ])
+
+      if (competitionsResponse.data) setCompetitions(competitionsResponse.data)
+      if (grantsResponse.data) setGrants(grantsResponse.data)
+    } catch (error) {
+      console.error("Error fetching data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const allCategories = Array.from(new Set([...competitions.map((c) => c.category), ...grants.map((g) => g.category)]))
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <div className="w-8 h-8 relative">
                 <Image
                   src="/school-logo.png"
                   alt="Elsewedy School"
                   width={32}
                   height={32}
-                  className="rounded-full"
+                  className="rounded-full object-cover"
                   priority
                 />
               </div>
               <span className="text-xl font-semibold text-gray-900">Elsewedy School</span>
             </div>
-          </div>
 
-          <div className="flex-1 max-w-2xl mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input placeholder="Search your Competition here..." className="pl-10 bg-gray-50 border-gray-200" />
+            <div className="flex-1 max-w-2xl mx-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="Search your Competition here..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-gray-50 border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <Bell className="w-5 h-5" />
-            </Button>
-            <div className="flex items-center space-x-3">
-              <span className="text-sm font-medium">Your Profile</span>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="w-5 h-5" />
-              </Button>
+            {/* Profile Section */}
+            <div className="flex items-center space-x-6">
+              {/* Mode Switch */}
+              <ModeSwitch isAdmin={isAdmin} onModeChange={(checked) => setViewMode(checked ? "admin" : "user")} />
+
+              {/* Profile Display */}
+              <div className="flex items-center space-x-3">
+                <div className="relative group">
+                  <Image
+                    src="/profile.jpeg"
+                    alt="Profile"
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover border-2 border-red-200 group-hover:border-red-400 transition-all duration-200"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium text-gray-900">Mahmoud Ibrahem</p>
+                  <p className="text-gray-600 text-xs">Continue Your Journey And Achieve Your Target</p>
+                </div>
+                <div className="flex space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  >
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  >
+                    <Mail className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
-          <div className="p-6">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">OVER VIEW</h3>
-                <nav className="space-y-2">
-                  <Link
-                    href="/"
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium ${
-                      activeSection === "competitions"
-                        ? "bg-red-50 text-red-600 border-l-4 border-red-500"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }`}
-                    onClick={() => setActiveSection("competitions")}
-                  >
-                    <Trophy className="w-5 h-5" />
-                    <span>competitions</span>
-                  </Link>
-                  <Link
-                    href="/grants"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Award className="w-5 h-5" />
-                    <span>Scholarships</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Users className="w-5 h-5" />
-                    <span>Students</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <GraduationCap className="w-5 h-5" />
-                    <span>Engineers</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Users className="w-5 h-5" />
-                    <span>Main Admins</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Users className="w-5 h-5" />
-                    <span>Teams</span>
-                  </Link>
-                </nav>
-              </div>
+      <div className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <AnimatedSection className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Discover Amazing Opportunities</h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Explore competitions and grants designed to help you excel in your academic journey
+          </p>
 
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">SETTINGS</h3>
-                <nav className="space-y-2">
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Settings className="w-5 h-5" />
-                    <span>Settings</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>Logout</span>
-                  </Link>
-                </nav>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-white">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                    <Trophy className="w-6 h-6 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900">15</p>
-                    <p className="text-sm text-gray-600">Local Competitions</p>
-                  </div>
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <Card className="glass hover-lift">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Competitions</CardTitle>
+                <Trophy className="h-4 w-4 text-red-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {competitions.filter((c) => new Date(c.deadline) > new Date()).length}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-white">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                    <Award className="w-6 h-6 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900">12</p>
-                    <p className="text-sm text-gray-600">International Competitions</p>
-                  </div>
+            <Card className="glass hover-lift">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Available Grants</CardTitle>
+                <DollarSign className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {grants.filter((g) => new Date(g.deadline) > new Date()).length}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-white">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                    <Trophy className="w-6 h-6 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900">27</p>
-                    <p className="text-sm text-gray-600">Total Competitions</p>
-                  </div>
+            <Card className="glass hover-lift">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Value</CardTitle>
+                <Award className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  ${grants.reduce((sum, grant) => sum + grant.amount, 0).toLocaleString()}
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="glass hover-lift">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Categories</CardTitle>
+                <Target className="h-4 w-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{allCategories.length}</div>
+              </CardContent>
+            </Card>
           </div>
+        </AnimatedSection>
 
-          {/* Local Competitions */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Local Competitions</h2>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="icon">
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon">
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {competitions.map((competition) => (
-                <Card key={competition.id} className="bg-white hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-0">
-                    <div className="relative">
-                      <img
-                        src={competition.image || "/placeholder.svg"}
-                        alt={competition.title}
-                        className="w-full h-48 object-cover rounded-t-lg"
-                      />
-                      <Badge className="absolute top-3 left-3 bg-red-500 hover:bg-red-600">
-                        {competition.category}
-                      </Badge>
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-3 line-clamp-2">{competition.title}</h3>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{competition.author}</p>
-                          <p className="text-xs text-gray-500">{competition.role}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* International Competitions */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">International Competitions</h2>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="icon">
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon">
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {internationalCompetitions.map((competition) => (
-                <Card key={competition.id} className="bg-white hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-0">
-                    <div className="relative">
-                      <img
-                        src={competition.image || "/placeholder.svg"}
-                        alt={competition.title}
-                        className="w-full h-48 object-cover rounded-t-lg"
-                      />
-                      <Badge className="absolute top-3 left-3 bg-red-500 hover:bg-red-600">
-                        {competition.category}
-                      </Badge>
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-3 line-clamp-2">{competition.title}</h3>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{competition.author}</p>
-                          <p className="text-xs text-gray-500">{competition.role}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </main>
-
-        {/* Right Sidebar - Profile */}
-        <aside className="w-80 bg-white border-l border-gray-200 p-6">
-          <div className="text-center mb-6">
-            <div className="relative inline-block">
-              <div className="w-20 h-20 bg-red-500 rounded-full mx-auto mb-4 overflow-hidden">
-                <img src="/student-profile.png" alt="Profile" className="w-full h-full object-cover" />
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-red-500 rounded-full border-2 border-white"></div>
-            </div>
-            <h3 className="font-semibold text-gray-900">Ahmed Mohamed</h3>
-            <p className="text-sm text-gray-500 mb-4">Continue Your Journey And Achieve Your Target</p>
-            <div className="flex justify-center space-x-2">
-              <Button variant="outline" size="icon">
-                <Bell className="w-4 h-4" />
+        {/* Quick Navigation */}
+        <AnimatedSection className="mb-8">
+          <div className="flex justify-center space-x-4">
+            <Link href="/competitions">
+              <Button
+                size="lg"
+                className="bg-red-500 hover:bg-red-600 transition-all duration-200 transform hover:scale-105"
+              >
+                <Trophy className="w-5 h-5 mr-2" />
+                View All Competitions
               </Button>
-              <Button variant="outline" size="icon">
-                <Mail className="w-4 h-4" />
+            </Link>
+            <Link href="/grants">
+              <Button
+                size="lg"
+                variant="outline"
+                className="hover:bg-red-50 hover:border-red-300 transition-all duration-200 transform hover:scale-105 bg-transparent"
+              >
+                <DollarSign className="w-5 h-5 mr-2" />
+                View All Grants
               </Button>
+            </Link>
+
+            {/* Admin Quick Actions - Only visible in admin mode */}
+            {isAdmin && (
+              <div className={cn("flex space-x-2 ml-4", "animate-in slide-in-from-right-5 duration-300")}>
+                <Button
+                  onClick={() => setShowCompetitionForm(true)}
+                  variant="secondary"
+                  className="transition-all duration-200 transform hover:scale-105"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Competition
+                </Button>
+                <Button
+                  onClick={() => setShowGrantForm(true)}
+                  variant="secondary"
+                  className="transition-all duration-200 transform hover:scale-105"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Grant
+                </Button>
+              </div>
+            )}
+          </div>
+        </AnimatedSection>
+
+        {/* Recent Activity */}
+        <AnimatedSection className="mb-12" animation="slideUp">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-gray-900 mb-8">Recent Opportunities</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <Card className="glass hover-lift">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Trophy className="w-5 h-5 mr-2 text-red-600" />
+                    Latest Competitions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">{competitions.length} competitions available</p>
+                  <Link href="/competitions">
+                    <Button className="w-full transition-all duration-200 transform hover:scale-105">
+                      Explore Competitions
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="glass hover-lift">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <DollarSign className="w-5 h-5 mr-2 text-green-600" />
+                    Latest Grants
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">{grants.length} grants available</p>
+                  <Link href="/grants">
+                    <Button
+                      className="w-full bg-transparent transition-all duration-200 transform hover:scale-105"
+                      variant="outline"
+                    >
+                      Explore Grants
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
           </div>
-
-          <div className="mb-6">
-            <Badge className="bg-red-500 hover:bg-red-600 mb-4">Fanni Mobtaker</Badge>
-            <div className="flex justify-end mb-4">
-              <div className="flex space-x-1">
-                <div className="w-6 h-10 bg-red-300 rounded-sm"></div>
-                <div className="w-6 h-12 bg-red-400 rounded-sm"></div>
-                <div className="w-6 h-14 bg-red-500 rounded-sm"></div>
-                <div className="w-6 h-16 bg-red-600 rounded-sm"></div>
-                <div className="w-6 h-18 bg-red-700 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span className="text-sm text-gray-600">Fanni mobtaker</span>
-              </div>
-              <span className="text-sm font-medium">21 Team</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                <span className="text-sm text-gray-600">Competition 2</span>
-              </div>
-              <span className="text-sm font-medium">10 Team</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-red-300 rounded-full"></div>
-                <span className="text-sm text-gray-600">Competition 3</span>
-              </div>
-              <span className="text-sm font-medium">0 Team</span>
-            </div>
-          </div>
-
-          <Link href="/competitions/new">
-            <Button className="w-full mt-8 bg-red-500 hover:bg-red-600 text-white">New Competition</Button>
-          </Link>
-        </aside>
+        </AnimatedSection>
       </div>
+
+      <ScrollToTop />
+
+      {/* Forms - Only accessible in admin mode */}
+      {isAdmin && showCompetitionForm && (
+        <CompetitionForm
+          onClose={() => setShowCompetitionForm(false)}
+          onSuccess={() => {
+            setShowCompetitionForm(false)
+            fetchData()
+          }}
+        />
+      )}
+
+      {isAdmin && showGrantForm && (
+        <GrantForm
+          onClose={() => setShowGrantForm(false)}
+          onSuccess={() => {
+            setShowGrantForm(false)
+            fetchData()
+          }}
+        />
+      )}
     </div>
   )
 }

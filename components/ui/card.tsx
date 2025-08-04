@@ -1,158 +1,85 @@
-"use client"
-
 import * as React from "react"
+
 import { cn } from "@/lib/utils"
 
-function Card({
-  className,
-  onPhotoUpload,
-  allowPhotoUpload = false,
-  ...props
-}: React.ComponentProps<"div"> & {
-  onPhotoUpload?: (files: FileList) => void
-  allowPhotoUpload?: boolean
-}) {
-  const [isDragOver, setIsDragOver] = React.useState(false)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    if (allowPhotoUpload) {
-      setIsDragOver(true)
-    }
-  }
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
-    if (allowPhotoUpload && onPhotoUpload) {
-      const files = e.dataTransfer.files
-      if (files.length > 0) {
-        onPhotoUpload(files)
-      }
-    }
-  }
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (allowPhotoUpload && onPhotoUpload && e.target.files) {
-      onPhotoUpload(e.target.files)
-    }
-  }
-
-  const handleClick = () => {
-    if (allowPhotoUpload && fileInputRef.current) {
-      fileInputRef.current.click()
-    }
+const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => {
+  if (props.onClick) {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "group cursor-pointer rounded-xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-sm",
+          "hover:shadow-md hover:-translate-y-1 hover:bg-white/90 hover:border-blue-200",
+          "transition-all duration-200 ease-in-out",
+          "dark:bg-slate-900/80 dark:hover:bg-slate-900/90 dark:border-slate-800 dark:hover:border-slate-700",
+          className,
+        )}
+        {...props}
+      />
+    )
   }
 
   return (
     <div
-      data-slot="card"
+      ref={ref}
       className={cn(
-        "bg-card/95 text-card-foreground backdrop-blur-sm flex flex-col gap-6 rounded-2xl border border-border/50 py-6 shadow-lg shadow-black/5 dark:shadow-black/20 transition-all duration-300 hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30 hover:-translate-y-1 hover:border-border/80 relative overflow-hidden",
-        "before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none",
-        "after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent",
-        allowPhotoUpload && "cursor-pointer",
-        isDragOver && allowPhotoUpload && "border-primary/50 bg-primary/5 scale-[1.02]",
-        className,
-      )}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      onClick={allowPhotoUpload ? handleClick : undefined}
-      {...props}
-    >
-      {allowPhotoUpload && (
-        <>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-          {isDragOver && (
-            <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary/50 rounded-2xl flex items-center justify-center z-10">
-              <div className="text-center">
-                <div className="text-2xl mb-2">📸</div>
-                <p className="text-sm font-medium text-primary">Drop photos here</p>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-      {props.children}
-    </div>
-  )
-}
-
-function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-header"
-      className={cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 [.border-b]:border-border/30",
+        "group rounded-xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-sm",
+        "hover:shadow-md hover:-translate-y-1 hover:bg-white/90",
+        "transition-all duration-200 ease-in-out",
+        "dark:bg-slate-900/80 dark:hover:bg-slate-900/90 dark:border-slate-800",
         className,
       )}
       {...props}
     />
   )
-}
+})
+Card.displayName = "Card"
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
+const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />
+  ),
+)
+CardHeader.displayName = "CardHeader"
+
+const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
+  ({ className, ...props }, ref) => (
+    <h3 ref={ref} className={cn("font-semibold leading-none tracking-tight", className)} {...props} />
+  ),
+)
+CardTitle.displayName = "CardTitle"
+
+const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
+  ({ className, ...props }, ref) => (
+    <p ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
+  ),
+)
+CardDescription.displayName = "CardDescription"
+
+const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
     <div
-      data-slot="card-title"
+      ref={ref}
       className={cn(
-        "leading-tight font-semibold text-lg tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text",
+        "p-6 pt-0 relative overflow-hidden",
+        "transition-all duration-200 ease-in-out",
+        "group-hover:before:opacity-10",
+        "before:absolute before:inset-0 before:bg-gradient-to-br before:from-blue-50 before:to-indigo-50",
+        "before:opacity-0 before:transition-opacity before:duration-200",
+        "dark:before:from-blue-950/20 dark:before:to-indigo-950/20",
         className,
       )}
       {...props}
     />
-  )
-}
+  ),
+)
+CardContent.displayName = "CardContent"
 
-function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-description"
-      className={cn("text-muted-foreground/90 text-sm leading-relaxed", className)}
-      {...props}
-    />
-  )
-}
+const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />
+  ),
+)
+CardFooter.displayName = "CardFooter"
 
-function CardAction({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-action"
-      className={cn("col-start-2 row-span-2 row-start-1 self-start justify-self-end", className)}
-      {...props}
-    />
-  )
-}
-
-function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-content" className={cn("px-6 space-y-4", className)} {...props} />
-}
-
-function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-footer"
-      className={cn(
-        "flex items-center justify-between px-6 [.border-t]:pt-6 [.border-t]:border-border/30 [.border-t]:mt-6",
-        className,
-      )}
-      {...props}
-    />
-  )
-}
-
-export { Card, CardHeader, CardFooter, CardTitle, CardAction, CardDescription, CardContent }
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
