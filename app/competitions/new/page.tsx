@@ -1,15 +1,18 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { Trophy, Users, GraduationCap, Settings, LogOut } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import Image from "next/image"
 
-export default function NewCompetition() {
-  const [formData, setFormData] = useState({
+export default function NewCompetitionPage() {
+  const [competition, setCompetition] = useState({
     title: "",
     description: "",
     type: "",
@@ -19,235 +22,193 @@ export default function NewCompetition() {
     teamSizeLimit: "",
   })
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setCompetition((prev) => ({ ...prev, [name]: value }))
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center space-x-4">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-              <Trophy className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 relative">
+                <Image
+                  src="/school-logo.png"
+                  alt="Elsewedy School"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                  priority
+                />
+              </div>
+              <span className="text-xl font-semibold text-gray-900">Elsewedy School</span>
             </div>
-            <span className="text-xl font-semibold text-gray-900">Elsewedy School</span>
-          </Link>
+          </div>
         </div>
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
-          <div className="p-6">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">OVER VIEW</h3>
-                <nav className="space-y-2">
-                  <Link
-                    href="/"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-600 border-l-4 border-red-500"
-                  >
-                    <Trophy className="w-5 h-5" />
-                    <span>competitions</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Users className="w-5 h-5" />
-                    <span>Students</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Users className="w-5 h-5" />
-                    <span>Teachers</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <GraduationCap className="w-5 h-5" />
-                    <span>Engineers</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Users className="w-5 h-5" />
-                    <span>Main Admins</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Users className="w-5 h-5" />
-                    <span>Teams</span>
-                  </Link>
-                </nav>
-              </div>
-
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">SETTINGS</h3>
-                <nav className="space-y-2">
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <Settings className="w-5 h-5" />
-                    <span>Settings</span>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>Logout</span>
-                  </Link>
-                </nav>
-              </div>
-            </div>
+      <div className="container mx-auto p-6">
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <Link href="/competitions" className="flex items-center text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Competitions
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-900">New Competition</h1>
           </div>
-        </aside>
+          <div className="text-sm text-gray-500 mt-1">
+            <Link href="/">Competitions</Link> &gt; <span>Add New Competition</span>
+          </div>
+        </div>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          <div className="max-w-4xl">
-            <div className="mb-6">
-              <h1 className="text-2xl font-semibold text-gray-900 mb-2">New Competition</h1>
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <Link href="/competitions" className="hover:text-gray-700">
-                  Competitions
-                </Link>
-                <span>{">"}</span>
-                <span className="text-red-500">Add New Competition</span>
-              </div>
-            </div>
-
-            {/* Header */}
-            <div className="bg-red-500 text-white p-6 rounded-t-lg mb-6">
-              <h2 className="text-xl font-semibold text-center">Enter your information</h2>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Form */}
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">Title</label>
-                  <Input
-                    placeholder="Type title here"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full"
-                  />
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1">
+            <Card>
+              <CardContent className="p-0">
+                <div className="bg-red-500 text-white p-4 rounded-t-lg">
+                  <h2 className="text-xl font-semibold text-center">Enter your information</h2>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">Description</label>
-                  <Textarea
-                    placeholder="Type Description here"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full h-24"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">Type</label>
-                  <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Competition type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="local">Local Competition</SelectItem>
-                      <SelectItem value="international">International Competition</SelectItem>
-                      <SelectItem value="national">National Competition</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">Registration Link</label>
-                  <Input
-                    placeholder="Type Registration Link here"
-                    value={formData.registrationLink}
-                    onChange={(e) => setFormData({ ...formData, registrationLink: e.target.value })}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">Deadline</label>
+                <div className="p-6 space-y-6">
+                  <div className="space-y-2">
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                      Title
+                    </label>
                     <Input
-                      placeholder="Type Deadline here"
-                      value={formData.deadline}
-                      onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                      className="w-full"
+                      id="title"
+                      name="title"
+                      placeholder="Type title here"
+                      value={competition.title}
+                      onChange={handleChange}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2">Allow Teams</label>
-                    <Select
-                      value={formData.allowTeams}
-                      onValueChange={(value) => setFormData({ ...formData, allowTeams: value })}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Yes Or No" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="yes">Yes</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
-                      </SelectContent>
-                    </Select>
+
+                  <div className="space-y-2">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                      Description
+                    </label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder="Type Description here"
+                      value={competition.description}
+                      onChange={handleChange}
+                      rows={4}
+                    />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">Team Size Limit</label>
-                  <Input
-                    placeholder="Type Team Size Limit here"
-                    value={formData.teamSizeLimit}
-                    onChange={(e) => setFormData({ ...formData, teamSizeLimit: e.target.value })}
-                    className="w-full"
-                  />
-                </div>
-              </div>
+                  <div className="space-y-2">
+                    <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                      Type
+                    </label>
+                    <Input
+                      id="type"
+                      name="type"
+                      placeholder="Select Competition type"
+                      value={competition.type}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              {/* Right Side - Images */}
-              <div className="space-y-6">
-                <div className="bg-gray-100 rounded-lg p-8 flex items-center justify-center h-64">
-                  <img
-                    src="/placeholder.svg?height=200&width=300"
-                    alt="Competition illustration"
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <label htmlFor="registrationLink" className="block text-sm font-medium text-gray-700">
+                      Registration Link
+                    </label>
+                    <Input
+                      id="registrationLink"
+                      name="registrationLink"
+                      placeholder="Type Registration Link here"
+                      value={competition.registrationLink}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-gray-100 rounded-lg p-4 h-20 flex items-center justify-center">
-                      <img
-                        src="/placeholder.svg?height=60&width=80"
-                        alt={`Thumbnail ${i}`}
-                        className="max-w-full max-h-full object-contain"
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="deadline" className="block text-sm font-medium text-gray-700">
+                        Deadline
+                      </label>
+                      <Input
+                        id="deadline"
+                        name="deadline"
+                        placeholder="Type Deadline here"
+                        value={competition.deadline}
+                        onChange={handleChange}
                       />
                     </div>
-                  ))}
-                </div>
 
-                <div className="flex space-x-4">
-                  <Button
-                    variant="outline"
-                    className="flex-1 border-red-500 text-red-500 hover:bg-red-50 bg-transparent"
-                  >
-                    CLEAR ALL
-                  </Button>
-                  <Button className="flex-1 bg-red-500 hover:bg-red-600">ADD</Button>
+                    <div className="space-y-2">
+                      <label htmlFor="allowTeams" className="block text-sm font-medium text-gray-700">
+                        Allow Teams
+                      </label>
+                      <Input
+                        id="allowTeams"
+                        name="allowTeams"
+                        placeholder="Yes Or No"
+                        value={competition.allowTeams}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="teamSizeLimit" className="block text-sm font-medium text-gray-700">
+                      Team Size Limit
+                    </label>
+                    <Input
+                      id="teamSizeLimit"
+                      name="teamSizeLimit"
+                      placeholder="Type Team Size Limit here"
+                      value={competition.teamSizeLimit}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+
+            <div className="mt-6 flex justify-between">
+              <Button variant="outline">Clear All</Button>
+              <Button className="bg-red-500 hover:bg-red-600 text-white">Add</Button>
             </div>
           </div>
-        </main>
+
+          <div className="w-full lg:w-80">
+            <Card>
+              <CardContent className="p-6">
+                <div className="mb-6">
+                  <img
+                    src="/placeholder.svg?height=300&width=300"
+                    alt="Competition"
+                    className="w-full h-auto rounded-lg"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    <img
+                      src="/placeholder.svg?height=80&width=80"
+                      alt="Competition thumbnail"
+                      className="w-full h-auto rounded-md"
+                    />
+                    <img
+                      src="/placeholder.svg?height=80&width=80"
+                      alt="Competition thumbnail"
+                      className="w-full h-auto rounded-md"
+                    />
+                    <img
+                      src="/placeholder.svg?height=80&width=80"
+                      alt="Competition thumbnail"
+                      className="w-full h-auto rounded-md"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("competitions")
@@ -100,8 +101,15 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 relative">
+                <Image
+                  src="/school-logo.png"
+                  alt="Elsewedy School"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                  priority
+                />
               </div>
               <span className="text-xl font-semibold text-gray-900">Elsewedy School</span>
             </div>
@@ -350,11 +358,11 @@ export default function Dashboard() {
           <div className="text-center mb-6">
             <div className="relative inline-block">
               <div className="w-20 h-20 bg-red-500 rounded-full mx-auto mb-4 overflow-hidden">
-                <img src="/placeholder.svg?height=80&width=80" alt="Profile" className="w-full h-full object-cover" />
+                <img src="/student-profile.png" alt="Profile" className="w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-red-500 rounded-full border-2 border-white"></div>
             </div>
-            <h3 className="font-semibold text-gray-900">Mohamed Hanafy Khairy</h3>
+            <h3 className="font-semibold text-gray-900">Ahmed Mohamed</h3>
             <p className="text-sm text-gray-500 mb-4">Continue Your Journey And Achieve Your Target</p>
             <div className="flex justify-center space-x-2">
               <Button variant="outline" size="icon">
@@ -370,9 +378,11 @@ export default function Dashboard() {
             <Badge className="bg-red-500 hover:bg-red-600 mb-4">Fanni Mobtaker</Badge>
             <div className="flex justify-end mb-4">
               <div className="flex space-x-1">
-                {[1, 2, 3, 4, 5].map((bar) => (
-                  <div key={bar} className={`w-6 h-${8 + bar * 2} bg-red-${300 + bar * 100} rounded-sm`}></div>
-                ))}
+                <div className="w-6 h-10 bg-red-300 rounded-sm"></div>
+                <div className="w-6 h-12 bg-red-400 rounded-sm"></div>
+                <div className="w-6 h-14 bg-red-500 rounded-sm"></div>
+                <div className="w-6 h-16 bg-red-600 rounded-sm"></div>
+                <div className="w-6 h-18 bg-red-700 rounded-sm"></div>
               </div>
             </div>
           </div>
@@ -402,7 +412,7 @@ export default function Dashboard() {
           </div>
 
           <Link href="/competitions/new">
-            <Button className="w-full mt-8 bg-red-500 hover:bg-red-600">New Competition</Button>
+            <Button className="w-full mt-8 bg-red-500 hover:bg-red-600 text-white">New Competition</Button>
           </Link>
         </aside>
       </div>
