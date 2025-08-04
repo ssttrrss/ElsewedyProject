@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -119,5 +119,64 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Custom styles for the school management system */
+.competition-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200;
+}
+
+.competition-card:hover {
+  @apply shadow-lg;
+}
+
+.sidebar-nav-item {
+  @apply flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200;
+}
+
+.sidebar-nav-item.active {
+  @apply bg-red-50 text-red-600 border-r-2 border-red-500;
+}
+
+.profile-chart {
+  @apply w-full h-32;
+}
+
+.stats-card {
+  @apply bg-white p-4 rounded-lg border border-gray-200 flex items-center gap-3;
+}
+
+.form-section {
+  @apply space-y-4;
+}
+
+.form-header {
+  @apply bg-red-500 text-white p-4 rounded-t-lg text-center font-medium;
+}
+
+.grant-hero {
+  @apply bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-lg mb-6;
+}
+
+.competition-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+}
+
+.mobile-nav {
+  @apply lg:hidden;
+}
+
+@media (max-width: 768px) {
+  .competition-grid {
+    @apply grid-cols-1 gap-4;
+  }
+
+  .sidebar {
+    @apply hidden;
+  }
+
+  .main-content {
+    @apply ml-0;
   }
 }
